@@ -116,7 +116,7 @@ const port = new SerialPort({ path: '/dev/ttyUSB0', baudRate: 9600 })// Si la vi
 
 // On lit les donnees par ligne telles quelles apparaissent
 const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }))
-/*  parser.on('data', console.log)  */
+ 
 parser.on('open', function() {
     console.log('Connexion ouverte');
  });
@@ -142,10 +142,11 @@ parser.on('data', function(data) {
     if (min < 10) { min = '0' + min; }
     var heureInsertion = heur + ':' + min + ':' + sec;
     var heureEtDate = mois + '/' + numMois + '/' + laDate;
-   
-    //fin test
+       //fin test
+
+       //Insertion à la base de donénes
     if ((heur == 08 && min == 00 && sec == 00) || (heur == 12 && min == 00 && sec == 00) || (heur == 19 && min == 00 && sec == 00)) {
-        var tempe = parseInt(temperature);
+        var tempe = parseInt(temperature); // ici on déclare une variable tempe pour prendre les valeurs rééelles
         var humi = parseInt(humidite);
         console.log("En Chiffre" + tempe);
         console.log("En chaine de caractere" + temperature);
@@ -157,7 +158,7 @@ parser.on('data', function(data) {
             var dbo = db.db("gest_temp"); // nom de ma bdd
             dbo.collection("climat").insertOne(tempEtHum, function(err, res) {
                 if (err) throw err;
-                console.log("1 document inséré");
+                console.log("nouvelle insertion dans la bdd");
                 db.close();
             });
         });
@@ -218,7 +219,7 @@ app.get('', (req, res) => {
             console.log("Temperature Dix neuf heure:\t" + tempDixNeufHeure);
             console.log("Humidite Dix neuf heure :\t" + humDixNeufHeure);
 
-            var objet = [{
+            var affiche = [{
                 MoyTemperature: moyT,
                 MoyHumidite: moyH,
                 TempHuitHeure: tempHuitHeure,
@@ -228,8 +229,8 @@ app.get('', (req, res) => {
                 TemperatureDixNeufHeure: tempDixNeufHeure,
                 HumiditeDixNeufHeure: humDixNeufHeure
             }];
-            console.log("L'objet global = \t" + objet);
-            res.render('index', { monObjet: objet });
+            console.log("Informations récupèrées = \t" + affiche);
+            res.render('index', { recup: affiche }); // index est la vue ici
             db.close();
         });
 
@@ -279,7 +280,7 @@ function getFiles(res) {
                 if (err) throw err;
                 else {
                     var buffer = doc[0].file.buffer;
-                    fs.writeFileSync('uploadImage.jpg', buffer);
+                    fs.writeFileSync('uploadImage.jpg', buffer); // fs, module nodejs pour “File System”, permet de créer et gérer des fichiers pour y stocker ou lire des fichiers dans un programme Node
                 }
             });
             base.close();
