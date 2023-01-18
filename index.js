@@ -155,7 +155,7 @@ parser.on('data', function(data) {
         MongoClient.connect(Url, { useUnifiedTopology: true }, function(err, db) {
             if (err) throw err;
             var dbo = db.db("gest_temp"); // nom de ma bdd
-            dbo.collection("temperature_hum").insertOne(tempEtHum, function(err, res) {
+            dbo.collection("climat").insertOne(tempEtHum, function(err, res) {
                 if (err) throw err;
                 console.log("1 document inséré");
                 db.close();
@@ -182,7 +182,7 @@ app.get('', (req, res) => {
         var moyH;
         var moyT;
         //fin
-        var col = dbo.collection('temperature_hum');
+        var col = dbo.collection('climat');
         col.aggregate([{ $group: { _id: "_id", moyeTemp: { $avg: "$Temperature" } } }]).toArray(function(err, items) {
             console.log(items);
             moyT = items[0].moyeTemp;
@@ -256,7 +256,7 @@ function insertFile(file, res) {
         if (err) throw err;
         else {
             var db = base.db('gest_temp');
-            var collection = db.collection('temperature_hum');
+            var collection = db.collection('climat');
             try {
                 collection.insertOne(file);
                 console.log("nouvelle insertion");
