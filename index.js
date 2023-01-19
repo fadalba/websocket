@@ -154,6 +154,7 @@ parser.on('data', function(data) {
         var tempEtHum = { 'Temperature': tempe, 'Humidity': humi, 'Date': heureEtDate, 'Heure': heureInsertion };
         //Connexion a mongodb et insertion Temperature et humidite
         MongoClient.connect(Url, { useUnifiedTopology: true }, function(err, db) {
+           console.log('connecté');
             if (err) throw err;
             var dbo = db.db("gest_temp"); // nom de ma bdd
             dbo.collection("climat").insertOne(tempEtHum, function(err, res) {
