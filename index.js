@@ -80,24 +80,7 @@ var binary = mongodb.Binary;
 
 app.use(express.static('public'));
 
-// Set Templating Engine
-/* app.use(expressLayouts);
-app.set('layout', './layouts/full-width'); */
-// Routes
-/* app.get('/about', (req, res) => {
-    res.render('about', { title: 'About Page', layout: './layouts/sidebar' });
-});
-app.set('view engine', 'ejs');
-app.get('/css', function(req, res) {
-    res.sendFile(__dirname + '/css/index.css');
-});
-app.get('/js', function(req, res) {
-    res.sendFile(__dirname + '/js/script.js');
-});
-app.get('/header', function(req, res) {
-    res.sendFile(__dirname + '/views/partials/header.ejs');
-});
-app.use(express.static("public")); */
+
 
 //la racine pour les fichiers
 router.get('/', function(req, res) {
@@ -122,12 +105,12 @@ parser.on('open', function() {
  });
 
 parser.on('data', function(data) {
-    console.log(data);
-    io.emit('temp', data); // envoi de la température avec emit
-    console.log(data);
-    //decoupe des donnees venant de la carte Arduino
-    var temperature = data.slice(0, 2); //decoupe de la temperature
-    var humidite = data.slice(5, 7); //decoupe de l'humidite
+   console.log('Températures et Humidités:');
+   let temp = data.split('/');
+   console.log(temp);
+  io.emit('data', {"temperature": temp[0], "humidite": temp[1]});  // envoi de la température avec emit
+
+
     //calcul de la date et l'heure 
     var datHeure = new Date(); // date
     var min = datHeure.getMinutes();
@@ -145,13 +128,13 @@ parser.on('data', function(data) {
        //fin test
 
        //Insertion à la base de donénes
-    if ((heur == 08 && min == 00 && sec == 00) || (heur == 12 && min == 00 && sec == 00) || (heur == 19 && min == 00 && sec == 00)) {
-        var tempe = parseInt(temperature); // ici on déclare une variable tempe pour prendre les valeurs rééelles
-        var humi = parseInt(humidite);
-        console.log("En Chiffre" + tempe);
-        console.log("En chaine de caractere" + temperature);
+    if ((heur == 15 && min == 51 && sec == 00) || (heur == 12 && min == 00 && sec == 00) || (heur == 19 && min == 00 && sec == 00)) {
+        var tempe = parseInt(temp[0]); // ici on déclare une variable tempe pour prendre les valeurs rééelles
+        var humi = parseInt(temp[1]);
+        console.log("Données" + tempe);
+        
         //l'objet qui contient la temperature, humidite et la date
-        var tempEtHum = { 'Temperature': tempe, 'Humidity': humi, 'Date': heureEtDate, 'Heure': heureInsertion };
+        var tempEtHum = { 'Temperature': temp[0], 'Humidité': temp[1], 'Date': heureEtDate, 'Heure': heureInsertion };
         //Connexion a mongodb et insertion Temperature et humidite
         MongoClient.connect(Url, { useUnifiedTopology: true }, function(err, db) {
            console.log('connecté');
@@ -195,7 +178,7 @@ app.get('', (req, res) => {
             console.log(humi);
             moyH = humi[0].moyeHum;
             console.log(moyH);
-        });
+        }); 
         //recuperation de la temperature de 8h
         col.find({ Heure: "08:00:00" }, { Temperature: 1 }).toArray(function(err, tem1) {
             console.log(tem1);
